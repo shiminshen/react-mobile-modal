@@ -11,6 +11,17 @@ after_success:
   - cat ./coverage/lcov.info | ./node_modules/codecov.io/bin/codecov.io.js
   - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 
+before_deploy:
+  - npm run build
+
+deploy:
+  - provider: pages
+    local_dir: './demo/dist'
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    on:
+      branch: master
+
 branches:
   only:
     - master

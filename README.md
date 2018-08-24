@@ -1,6 +1,6 @@
 # react-mobile-modal
 
-[![Travis][build-badge]][build]
+[![Build Status](https://travis-ci.org/shiminshen/react-mobile-modal.svg?branch=master)](https://travis-ci.org/shiminshen/react-mobile-modal)
 [![npm package][npm-badge]][npm]
 [![Coveralls][coveralls-badge]][coveralls]
 
