@@ -30,7 +30,8 @@ class ScrollPanel extends Component {
       y: 0,
       move: 0,
       offset: 0,
-      transition: false
+      transition: false,
+      startTime: null
     }
 
     this.handleTouchStart = this.handleTouchStart.bind(this)
@@ -39,12 +40,14 @@ class ScrollPanel extends Component {
   }
 
   componentDidMount () {
+    const { maxHeight } = this.props
     const wrapperHeight = this.wrapperElem.getBoundingClientRect().height
-    const contentHeight = this.contentElem.getBoundingClientRect().height
+
+    this.wrapperHeight = wrapperHeight > maxHeight ? maxHeight : wrapperHeight
+    console.log(this.wrapperHeight)
+    this.contentHeight = this.contentElem.getBoundingClientRect().height
     this.setState({
-      wrapperHeight,
-      contentHeight,
-      offsetLimit: wrapperHeight - contentHeight
+      offsetLimit: this.wrapperHeight - this.contentHeight
     })
   }
 
@@ -60,7 +63,8 @@ class ScrollPanel extends Component {
     this.setState({
       x,
       y,
-      move: 0
+      move: 0,
+      startTime: Date.now()
     })
   }
 
@@ -76,26 +80,36 @@ class ScrollPanel extends Component {
   }
 
   handleTouchEnd (e) {
-    const { offset, offsetLimit } = this.state
-    if (offset > 0) {
+    const { move, offset, offsetLimit, startTime } = this.state
+    const duration = (Date.now() - startTime) / 1000
+    const momentumOffset = offset - (move / duration)
+
+    if (momentumOffset > 0) {
       return this.setState({
         offset: 0,
         transition: true
       })
     }
-    if (offset < offsetLimit) {
+    if (momentumOffset < offsetLimit) {
       return this.setState({
         offset: offsetLimit,
+        transition: true
+      })
+    }
+
+    if (duration < 1) {
+      return this.setState({
+        offset: momentumOffset,
         transition: true
       })
     }
   }
 
   render () {
-    const { height = 300, offset, transition } = this.state
+    const { offset, transition } = this.state
     return (
       <Wrapper
-        height={height}
+        height={this.wrapperHeight}
         innerRef={elem => (this.wrapperElem = elem)}
         onTouchStart={this.handleTouchStart}
         onTouchMove={this.handleTouchMove}
@@ -112,6 +126,10 @@ class ScrollPanel extends Component {
       </Wrapper>
     )
   }
+}
+
+ScrollPanel.defaultProps = {
+  maxHeight: 300
 }
 
 export default ScrollPanel
