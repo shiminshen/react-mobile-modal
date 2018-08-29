@@ -13,7 +13,6 @@ const Wrapper = styled.div`
 const Content = styled.div`
   position: relative;
   transition: ${props => props.transition ? 'all .3s' : 'none'};
-  top: ${prpos => prpos.offset}px;
 
   p {
     margin: 0;
@@ -44,7 +43,6 @@ class ScrollPanel extends Component {
     const wrapperHeight = this.wrapperElem.getBoundingClientRect().height
 
     this.wrapperHeight = wrapperHeight > maxHeight ? maxHeight : wrapperHeight
-    console.log(this.wrapperHeight)
     this.contentHeight = this.contentElem.getBoundingClientRect().height
     this.setState({
       offsetLimit: this.wrapperHeight - this.contentHeight
@@ -60,10 +58,14 @@ class ScrollPanel extends Component {
 
   handleTouchStart (e) {
     const { x, y } = this.getPosition(e)
+    const currTop = window.getComputedStyle(this.contentElem).getPropertyValue('top')
+    const offset = Number(currTop.match(/-?\d+/)[0])
     this.setState({
       x,
       y,
       move: 0,
+      offset,
+      transition: false,
       startTime: Date.now()
     })
   }
@@ -118,8 +120,8 @@ class ScrollPanel extends Component {
       >
         <Content
           innerRef={elem => (this.contentElem = elem)}
-          offset={offset}
           transition={transition}
+          style={{ top: `${offset}px` }}
         >
           {this.props.children}
         </Content>
